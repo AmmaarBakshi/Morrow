@@ -1,0 +1,70 @@
+# Morrow with PostgreSQL. Start with:
+#   MORROW_SECRET_KEY=$(openssl rand -base64 32) docker compose up -d
+# then open http://localhost:4400 and create the first account.
+# For production put an HTTPS reverse proxy in front and set MORROW_PUBLIC_URL.
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: morrow
+      POSTGRES_USER: morrow
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-morrow-local-only}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U morrow -d morrow"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  morrow:
+    build: .
+    image: morrow:latest
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "4400:4400"
+    environment:
+      DATABASE_URL: postgres://morrow:${POSTGRES_PASSWORD:-morrow-local-only}@postgres:5432/morrow
+      MORROW_SECRET_KEY: ${MORROW_SECRET_KEY:?Set MORROW_SECRET_KEY to a random value of at least 32 characters}
+      MORROW_PUBLIC_URL: ${MORROW_PUBLIC_URL:-https://localhost}
+      MORROW_APP_URL: ${MORROW_APP_URL:-http://localhost:4400}
+      # Local trial: the development inbox keeps every e-mail inside Morrow.
+      # Configure smtp/resend/postmark here or per workspace in Settings → Sending.
+      MORROW_EMAIL_PROVIDER: ${MORROW_EMAIL_PROVIDER:-fake}
+      MORROW_ALLOW_DEV_PROVIDER: ${MORROW_ALLOW_DEV_PROVIDER:-true}
+      MORROW_SYSTEM_FROM_EMAIL: ${MORROW_SYSTEM_FROM_EMAIL:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_WEBHOOK_SECRET: ${RESEND_WEBHOOK_SECRET:-}
+      POSTMARK_SERVER_TOKEN: ${POSTMARK_SERVER_TOKEN:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      MORROW_AI_PROVIDER: ${MORROW_AI_PROVIDER:-}
+      MORROW_TRUST_PROXY: ${MORROW_TRUST_PROXY:-false}
+      MORROW_METRICS_TOKEN: ${MORROW_METRICS_TOKEN:-}
+
+  # Optional: scale background work separately with
+  #   docker compose --profile split up -d --scale worker=3
+  worker:
+    image: morrow:latest
+    profiles: ["split"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["node", "apps/cli/dist/bin.js", "worker"]
+    environment:
+      DATABASE_URL: postgres://morrow:${POSTGRES_PASSWORD:-morrow-local-only}@postgres:5432/morrow
+      MORROW_SECRET_KEY: ${MORROW_SECRET_KEY:?Set MORROW_SECRET_KEY}
+      MORROW_PUBLIC_URL: ${MORROW_PUBLIC_URL:-https://localhost}
+      MORROW_EMAIL_PROVIDER: ${MORROW_EMAIL_PROVIDER:-fake}
+      MORROW_ALLOW_DEV_PROVIDER: ${MORROW_ALLOW_DEV_PROVIDER:-true}
+
+volumes:
+  postgres-data:
