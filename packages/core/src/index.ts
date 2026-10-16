@@ -14,3 +14,4 @@ export * from './segments';
 export * from './automations';
 export * from './settings';
 export * from './analytics';
+export * from './dto';
