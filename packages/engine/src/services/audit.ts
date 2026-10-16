@@ -1,5 +1,5 @@
 import { newId, type AuditLogDTO } from '@morrow/core';
-import { fromJson, toJson, type Db, type Row } from '@morrow/db';
+import { escapeLike, fromJson, sql, toJson, type Db, type Row } from '@morrow/db';
 import { authorize, type WorkspaceContext } from '../context';
 import type { Engine } from '../engine';
 
@@ -64,7 +64,8 @@ export class AuditService {
       .limit(Math.min(filter.limit ?? 100, 500));
     if (filter.entityType) q = q.where('entity_type', '=', filter.entityType);
     if (filter.entityId) q = q.where('entity_id', '=', filter.entityId);
-    if (filter.action) q = q.where('action', 'like', `${filter.action.replace(/[%_\\]/g, '')}%`);
+    // Prefix match ("api_key." finds every API key action); wildcards in the input are literal.
+    if (filter.action) q = q.where(sql<boolean>`action like ${`${escapeLike(filter.action)}%`} escape '\\'`);
     if (filter.before) q = q.where('created_at', '<', filter.before);
     return (await q.execute()).map(toAuditDTO);
   }
