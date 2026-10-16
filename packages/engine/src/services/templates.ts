@@ -603,14 +603,21 @@ export class TemplatesService {
     authorize(ctx, 'templates:write');
     const row = await this.e.db.selectFrom('snippets').selectAll().where('id', '=', id).where('workspace_id', '=', ctx.workspaceId).executeTakeFirst();
     if (!row) throw new NotFoundError('Snippet', id);
-    const used = await this.e.db
+    // Both the live (published) version and the working draft must keep rendering.
+    const candidates = await this.e.db
       .selectFrom('template_versions')
-      .innerJoin('templates', 'templates.published_version_id', 'template_versions.id')
-      .select('templates.name')
+      .innerJoin('templates', (join) =>
+        join.on((eb) =>
+          eb.or([eb('templates.published_version_id', '=', eb.ref('template_versions.id')), eb('templates.draft_version_id', '=', eb.ref('template_versions.id'))]),
+        ),
+      )
+      .select(['templates.name', 'template_versions.html', 'template_versions.text'])
       .where('template_versions.workspace_id', '=', ctx.workspaceId)
       .where('templates.status', '!=', 'archived')
-      .where(sql<boolean>`(template_versions.html like ${`%{{> ${row.key}}}%`} or template_versions.html like ${`%{{>${row.key}}}%`})`)
-      .executeTakeFirst();
+      .where(sql<boolean>`(template_versions.html like ${`%${escapeLike(row.key)}%`} escape '\\' or template_versions.text like ${`%${escapeLike(row.key)}%`} escape '\\')`)
+      .execute();
+    const partial = new RegExp(`\\{\\{>\\s*${row.key}\\s*\\}\\}`);
+    const used = candidates.find((c) => partial.test(c.html) || partial.test(c.text ?? ''));
     if (used) throw new PreconditionError(`Snippet is used by template "${used.name}".`);
     await this.e.db.deleteFrom('snippets').where('id', '=', id).execute();
     await this.e.audit.record(ctx, 'snippet.deleted', { type: 'snippet', id }, { key: row.key });
