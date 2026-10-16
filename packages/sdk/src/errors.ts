@@ -28,11 +28,8 @@ export class MorrowApiError extends Error {
 
 /** The request never produced an HTTP response (DNS, refused connection, timeout). */
 export class MorrowNetworkError extends Error {
-  constructor(
-    message: string,
-    readonly cause?: unknown,
-  ) {
-    super(message);
+  constructor(message: string, cause?: unknown) {
+    super(message, { cause });
     this.name = 'MorrowNetworkError';
   }
 }

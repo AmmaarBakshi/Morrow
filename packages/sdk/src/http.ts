@@ -20,7 +20,7 @@ export interface TransportOptions {
   /** Act in this workspace (sessions only; API keys are bound to one workspace). */
   workspaceId?: string | null;
   /** Browser use: include cookies and echo this CSRF token on writes. */
-  credentials?: RequestCredentials;
+  credentials?: 'include' | 'same-origin' | 'omit';
   csrfToken?: string | (() => string | null | undefined) | null;
   fetch?: typeof fetch;
   timeoutMs?: number;
