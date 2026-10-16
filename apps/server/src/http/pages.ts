@@ -59,6 +59,7 @@ export function maskEmail(email: string): string {
   const at = email.lastIndexOf('@');
   if (at <= 0) return email;
   const local = email.slice(0, at);
+  // A fixed mask length so the page does not reveal how long the address is.
   const shown = local.slice(0, Math.min(2, Math.max(1, local.length - 1)));
-  return `${shown}${'•'.repeat(Math.max(2, Math.min(6, local.length - shown.length)))}${email.slice(at)}`;
+  return `${shown}•••${email.slice(at)}`;
 }
