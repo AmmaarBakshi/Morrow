@@ -155,6 +155,18 @@ describe('API behaviour', () => {
     expect(forced.status).toBe(403);
   });
 
+  it('lists each template variable once, including workspace values for standard keys', async () => {
+    h = await createServerHarness();
+    const c = h.client();
+    await c.login();
+    const patched = await c.patch('/api/v1/workspace', { settings: { variables: { collaboration_url: 'https://cal.example.com/team', github_org: 'example' } } });
+    expect(patched.status).toBe(200);
+    const { items } = (await c.get('/api/v1/variables')).body as { items: { key: string }[] };
+    const keys = items.map((v) => v.key);
+    expect(keys.filter((k) => k === 'collaboration_url')).toHaveLength(1);
+    expect(keys).toContain('github_org');
+  });
+
   it('streams CSV exports only to roles allowed to export', async () => {
     h = await createServerHarness();
     const owner = h.client();

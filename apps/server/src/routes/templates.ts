@@ -62,9 +62,13 @@ export function templateRoutes(engine: Engine, limiter: RateLimiter): Hono<AppEn
   app.get('/variables', async (c) => {
     const ctx = c.get('ctx');
     const [{ settings }, fields] = await Promise.all([engine.workspaces.settings(ctx.workspaceId), engine.fields.list(ctx)]);
+    // A workspace value for a standard key (e.g. collaboration_url) is already listed once.
+    const standard = new Set(STANDARD_VARIABLES.map((v) => v.key));
     const items: VariableDefinition[] = [
       ...STANDARD_VARIABLES,
-      ...Object.entries(settings.variables).map(([key, value]) => ({ key, label: key.replace(/_/g, ' '), group: 'workspace' as const, sample: String(value), description: 'Workspace variable' })),
+      ...Object.entries(settings.variables)
+        .filter(([key]) => !standard.has(key))
+        .map(([key, value]) => ({ key, label: key.replace(/_/g, ' '), group: 'workspace' as const, sample: String(value), description: 'Workspace variable' })),
       ...fields.map((f) => ({ key: `custom.${f.key}`, label: f.label, group: 'custom' as const, sample: f.type === 'number' ? 42 : f.label })),
     ];
     return c.json({ items });
