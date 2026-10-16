@@ -122,7 +122,7 @@ export function Stat({ label, value, sub, icon }: { label: string; value: ReactN
   );
 }
 
-export function Tabs<T extends string>({ value, onChange, items }: { value: T; onChange(v: T): void; items: Array<{ value: T; label: ReactNode; count?: number }> }) {
+export function Tabs<T extends string>({ value, onChange, items }: { value: T; onChange(v: NoInfer<T>): void; items: Array<{ value: NoInfer<T>; label: ReactNode; count?: number }> }) {
   return (
     <div role="tablist" className="flex gap-1 overflow-x-auto border-b border-line">
       {items.map((it) => (
