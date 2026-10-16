@@ -9,15 +9,14 @@ import type { Register } from './ops';
 export const registerSession: Register = (program, run) => {
   program
     .command('login')
-    .description('connect the CLI to a Morrow server with an API key or your account')
-    .option('--url <url>', 'server URL', process.env.MORROW_URL ?? 'http://localhost:4400')
+    .description('connect the CLI to a Morrow server (pass the server with the global --url)')
     .option('--api-key <key>', 'API key (create one in Settings → API keys)')
     .option('--email <email>', 'sign in with an account instead of an API key')
     .option('--password-stdin', 'read the password from stdin')
     .option('--name <profile>', 'save as this profile', 'default')
     .action(
-      run(async (ctx, opts: { url: string; apiKey?: string; email?: string; passwordStdin?: boolean; name: string }) => {
-        const url = opts.url.replace(/\/+$/, '');
+      run(async (ctx, opts: { apiKey?: string; email?: string; passwordStdin?: boolean; name: string }) => {
+        const url = (ctx.options.url ?? ctx.env.MORROW_URL ?? ctx.profile()?.url ?? 'http://localhost:4400').replace(/\/+$/, '');
         const base = new MorrowClient({ baseUrl: url, fetch: ctx.fetch, userAgent: 'morrow-cli' });
         let token: string;
         let kind: 'api_key' | 'session';
