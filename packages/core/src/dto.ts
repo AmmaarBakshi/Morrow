@@ -53,6 +53,28 @@ export interface SessionInfoDTO {
   csrfToken: string;
 }
 
+/** The caller behind a request: a person (session) or an API key. */
+export interface WhoAmIDTO {
+  kind: 'session' | 'api_key';
+  user: UserDTO | null;
+  apiKey: { id: string; name: string } | null;
+  workspace: WorkspaceDTO;
+  role: Role;
+  permissions: Permission[];
+}
+
+/** Returned by sign-in and sign-up. `token` is only issued when asked for (CLI and scripts). */
+export interface AuthResultDTO {
+  session: SessionInfoDTO;
+  token?: string;
+}
+
+export interface SetupStatusDTO {
+  version: string;
+  hasUsers: boolean;
+  signupAllowed: boolean;
+}
+
 export interface MemberDTO {
   id: string;
   userId: string;
