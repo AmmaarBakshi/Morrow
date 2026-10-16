@@ -25,7 +25,7 @@ export function htmlToText(html: string): string {
   s = s.replace(/<\/(tr|ul|ol)\s*>/gi, '\n');
   s = s.replace(/<\/(td|th)\s*>/gi, ' ');
   s = s.replace(/<[^>]+>/g, '');
-  s = decodeEntities(s).replace(/ /g, ' ');
+  s = decodeEntities(s).replace(/\u00A0/g, ' ');
   const lines = s.split(/\r?\n/).map((line) => line.replace(/[ \t]+/g, ' ').trim());
   const out: string[] = [];
   for (const line of lines) {

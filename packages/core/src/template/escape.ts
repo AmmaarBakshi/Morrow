@@ -18,7 +18,7 @@ const NAMED_ENTITIES: Record<string, string> = {
   gt: '>',
   quot: '"',
   apos: "'",
-  nbsp: ' ',
+  nbsp: '\u00A0',
   colon: ':',
   tab: '\t',
   newline: '\n',
