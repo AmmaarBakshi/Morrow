@@ -116,7 +116,8 @@ describe('automation engine', () => {
     const { engine, ctx } = h;
     const draft = await engine.templates.create(ctx, { name: 'Unpublished', subject: 'Hi {{first_name}}', html: '<p>Hello {{first_name}}</p>{{> footer}}', category: 'relationship' });
     const a = await engine.automations.create(ctx, { name: 'Broken', definition: { trigger: { type: 'contact_created' }, steps: [{ id: 's', type: 'send_email', templateId: draft.id }] } });
-    expect(a.problems.some((p) => p.message.includes('has not been published'))).toBe(true);
+    const loaded = await engine.automations.get(ctx, a.id);
+    expect(loaded.problems.some((p) => p.message.includes('has not been published'))).toBe(true);
     await expect(engine.automations.activate(ctx, a.id)).rejects.toThrow(/not been published/);
     await engine.templates.publish(ctx, draft.id);
     await expect(engine.automations.activate(ctx, a.id)).resolves.toMatchObject({ status: 'active' });
