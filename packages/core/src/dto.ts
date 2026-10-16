@@ -812,3 +812,16 @@ export interface AiDraftDTO {
   variablesUsed: string[];
   unknownVariables: string[];
 }
+
+export interface AiSubjectSuggestionDTO {
+  subject: string;
+  previewText: string;
+  rationale: string;
+}
+
+export interface AiCampaignSummaryDTO {
+  summary: string;
+  highlights: string[];
+  concerns: string[];
+  nextSteps: string[];
+}
