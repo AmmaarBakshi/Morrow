@@ -1,0 +1,19 @@
+{
+  "name": "@morrow/email",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Provider-independent email delivery layer for Morrow (fake, SMTP, Resend, Postmark).",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@morrow/core": "*",
+    "nodemailer": "^10.1.2"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^8.0.2"
+  }
+}

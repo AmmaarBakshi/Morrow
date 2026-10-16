@@ -1,0 +1,23 @@
+{
+  "name": "@morrow/db",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Database schema, migrations and dialect-portable connections (SQLite + PostgreSQL) for Morrow.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@morrow/core": "*",
+    "better-sqlite3": "^13.0.3",
+    "kysely": "~0.28.17",
+    "pg": "^8.16.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/pg": "^8.15.0"
+  }
+}

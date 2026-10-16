@@ -1,0 +1,33 @@
+{
+  "name": "morrow",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Morrow — automated email, contact intelligence and relationship management for software teams.",
+  "type": "module",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "start": "npm run start -w @morrow/server",
+    "build": "npm run build -w @morrow/web && npm run build -w @morrow/server && npm run build -w @morrow/cli",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p apps/web/tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:pg": "node scripts/test-pg.mjs",
+    "morrow": "tsx apps/cli/src/bin.ts",
+    "db:migrate": "tsx apps/cli/src/bin.ts migrate",
+    "db:seed": "tsx apps/cli/src/bin.ts seed --demo"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "tsx": "^4.20.0",
+    "typescript": "~5.9.3",
+    "vitest": "~4.1.12"
+  }
+}

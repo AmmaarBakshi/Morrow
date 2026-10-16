@@ -1,0 +1,30 @@
+{
+  "name": "@morrow/cli",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The morrow command-line interface: operate a Morrow install and drive workspaces from the terminal.",
+  "type": "module",
+  "bin": {
+    "morrow": "./bin/morrow.mjs"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsup"
+  },
+  "dependencies": {
+    "@morrow/core": "*",
+    "@morrow/db": "*",
+    "@morrow/engine": "*",
+    "@morrow/sdk": "*",
+    "@morrow/server": "*",
+    "commander": "~14.0.3",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "tsup": "~8.5.1"
+  }
+}
