@@ -31,6 +31,8 @@ export const STANDARD_VARIABLES: VariableDefinition[] = [
   { key: 'latest_project_name', label: 'Latest project name', group: 'workspace', sample: 'Orbit Analytics' },
   { key: 'latest_project_url', label: 'Latest project link', group: 'workspace', sample: 'https://example.com/work/orbit' },
   { key: 'company_address', label: 'Postal address', group: 'workspace', sample: '221B Residency Road, Bengaluru 560025, India' },
+  { key: 'brand_color', label: 'Brand colour', group: 'workspace', sample: '#4f46e5' },
+  { key: 'logo_url', label: 'Logo URL', group: 'workspace', sample: '' },
 
   { key: 'sender_name', label: 'Sender name', group: 'sender', sample: 'Ammaar' },
   { key: 'sender_email', label: 'Sender e-mail', group: 'sender', sample: 'hello@example.com' },
