@@ -302,7 +302,7 @@ export class CampaignsService {
     const provider = await this.e.integrations.resolveEmailProvider(ctx.workspaceId);
     if (!provider) blockers.push('Configure an e-mail provider in Settings → Sending.');
     else if (!provider.provider.capabilities.deliveryEvents) warnings.push(`${provider.name} only reports acceptance; delivery and bounce statistics will not be available.`);
-    if (provider?.name === 'fake') warnings.push('The development inbox is active: nothing will actually be delivered.');
+    if (provider?.name === 'fake' && provider.source !== 'override') warnings.push('The development inbox is active: nothing will actually be delivered.');
 
     let criteria: CriteriaGroup;
     try {
@@ -330,18 +330,24 @@ export class CampaignsService {
     };
     const eligibleWhere = this.eligibleWhere(ctx.workspaceId, category, settings.consent);
     const audience = await count();
+    // Reasons are exclusive and applied in priority order, so eligible + excluded = audience.
+    const hasEmail = (eb: ExpressionBuilder<Database, 'contacts'>) => eb('contacts.email_normalized', 'is not', null);
+    const goodEmail = (eb: ExpressionBuilder<Database, 'contacts'>) => eb.and([hasEmail(eb), eb('contacts.email_status', 'not in', BAD_EMAIL)]);
     const excluded: PreflightDTO['excluded'] = {
       no_email: await count((eb) => eb('contacts.email_normalized', 'is', null)),
-      invalid_email: await count((eb) => eb.and([eb('contacts.email_normalized', 'is not', null), eb('contacts.email_status', 'in', BAD_EMAIL)])),
-      suppressed: await count((eb) => supp(eb, 'all')),
+      invalid_email: await count((eb) => eb.and([hasEmail(eb), eb('contacts.email_status', 'in', BAD_EMAIL)])),
+      suppressed: await count((eb) => eb.and([goodEmail(eb), supp(eb, 'all')])),
     };
     if (category !== 'transactional') {
-      excluded.unsubscribed = await count((eb) => eb.or([supp(eb, 'marketing'), eb('contacts.consent_status', '=', 'withdrawn')]));
+      const notHardSuppressed = (eb: ExpressionBuilder<Database, 'contacts'>) => eb.and([goodEmail(eb), eb.not(supp(eb, 'all'))]);
+      excluded.unsubscribed = await count((eb) => eb.and([notHardSuppressed(eb), eb.or([supp(eb, 'marketing'), eb('contacts.consent_status', '=', 'withdrawn')])]));
       const allowed: ConsentStatus[] =
         category === 'marketing'
           ? settings.consent.allowImpliedForMarketing ? ['granted', 'implied'] : ['granted']
           : settings.consent.allowUnknownForRelationship ? ['granted', 'implied', 'unknown'] : ['granted', 'implied'];
-      excluded.consent_missing = await count((eb) => eb.and([eb('contacts.consent_status', 'not in', allowed), eb('contacts.consent_status', '!=', 'withdrawn')]));
+      excluded.consent_missing = await count((eb) =>
+        eb.and([notHardSuppressed(eb), eb.not(supp(eb, 'marketing')), eb('contacts.consent_status', 'not in', [...allowed, 'withdrawn'])]),
+      );
     }
     const prior = await count((eb) =>
       eb.exists(eb.selectFrom('messages').select(sql`1`.as('one')).whereRef('messages.contact_id', '=', 'contacts.id').where('messages.campaign_id', '=', c.id)),
