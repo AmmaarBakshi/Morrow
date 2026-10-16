@@ -21,6 +21,7 @@ import {
   type AutomationDTO,
   type AutomationRunDTO,
   type AutomationStatsDTO,
+  type DefinitionProblemDTO,
   type DryRunContactDTO,
   type DryRunResultDTO,
   type Page,
@@ -29,12 +30,6 @@ import {
 import { fromJson, sql, toJson, type Row } from '@morrow/db';
 import { actorUserId, authorize, type WorkspaceContext } from '../context';
 import type { Engine } from '../engine';
-
-export interface DefinitionProblemDTO {
-  path: string;
-  message: string;
-  severity: 'error' | 'warning';
-}
 
 function emptyStats(): AutomationStatsDTO {
   return { runs: 0, active: 0, completed: 0, skipped: 0, failed: 0, messages: 0, pendingApproval: 0 };

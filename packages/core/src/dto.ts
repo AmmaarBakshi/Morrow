@@ -534,6 +534,13 @@ export interface AutomationStatsDTO {
   pendingApproval: number;
 }
 
+/** A problem found when checking an automation definition against the workspace. */
+export interface DefinitionProblemDTO {
+  path: string;
+  message: string;
+  severity: 'error' | 'warning';
+}
+
 export interface AutomationDTO {
   id: string;
   name: string;
