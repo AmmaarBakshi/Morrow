@@ -52,6 +52,14 @@ export function authenticate(engine: Engine): MiddlewareHandler<AppEnv> {
   };
 }
 
+/** Cookie sessions must echo their CSRF token on unsafe methods. */
+export function checkCsrf(c: Context, p: Principal): void {
+  if (p.kind === 'session' && p.via === 'cookie' && UNSAFE.has(c.req.method)) {
+    const sent = c.req.header(CSRF_HEADER) ?? '';
+    if (!sent || !safeEqual(sent, p.csrfToken)) throw new ForbiddenError('Missing or invalid CSRF token. Reload the page and try again.');
+  }
+}
+
 /**
  * Require a caller. Cookie sessions must echo their CSRF token on unsafe
  * methods; bearer credentials are not sent automatically by browsers, so
@@ -61,10 +69,7 @@ export function requireAuth(limiter: RateLimiter): MiddlewareHandler<AppEnv> {
   return async (c, next) => {
     const p = c.get('principal');
     if (!p) throw new UnauthorizedError('Sign in or provide an API key.');
-    if (p.kind === 'session' && p.via === 'cookie' && UNSAFE.has(c.req.method)) {
-      const sent = c.req.header(CSRF_HEADER) ?? '';
-      if (!sent || !safeEqual(sent, p.csrfToken)) throw new ForbiddenError('Missing or invalid CSRF token. Reload the page and try again.');
-    }
+    checkCsrf(c, p);
     const decision = limiter.hit(`api:${p.kind === 'session' ? p.userId : p.keyId}`, RATE_RULES.api);
     if (!decision.allowed) throw rateLimited(decision.retryAfterSeconds);
     await next();
