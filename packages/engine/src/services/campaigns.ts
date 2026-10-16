@@ -450,8 +450,9 @@ export class CampaignsService {
   }
 
   /**
-   * Schedule (or launch now when `scheduledAt` is empty/past). Campaigns that
-   * need approval move to pending approval first.
+   * Schedule, or launch now when `scheduledAt` is empty. An explicit time that
+   * has already passed is rejected rather than silently sending immediately.
+   * Campaigns that need approval move to pending approval first.
    */
   async schedule(ctx: WorkspaceContext, id: string, input: { scheduledAt?: string | null; timezone?: string | null } = {}): Promise<CampaignDTO> {
     authorize(ctx, 'campaigns:launch');
@@ -462,6 +463,9 @@ export class CampaignsService {
     const at = input.scheduledAt ? new Date(input.scheduledAt) : null;
     if (at && Number.isNaN(at.getTime())) throw new ValidationError('Invalid schedule time.');
     const now = this.e.now();
+    if (at && at.getTime() <= now.getTime()) {
+      throw new ValidationError('That time has already passed. Choose a time in the future, or send now.', [{ path: 'scheduledAt', message: 'Must be in the future.' }]);
+    }
     const { settings } = await this.e.workspaces.settings(ctx.workspaceId);
     const patch: Partial<Row<'campaigns'>> = {
       scheduled_at: at && at > now ? at.toISOString() : null,

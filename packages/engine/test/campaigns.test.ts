@@ -146,3 +146,21 @@ describe('analytics', () => {
     expect(csv).toContain('Midnight');
   });
 });
+
+describe('campaign scheduling safety', () => {
+  it('rejects times in the past instead of sending immediately, and unschedules through update', async () => {
+    h = await createHarness({ start: '2027-05-01T00:00:00Z' });
+    const { engine, ctx } = h;
+    const seg = await audience(h);
+    const c = await engine.campaigns.create(ctx, { name: 'Late', segmentId: seg.id, templateId: await h.templateId('Newsletter') });
+    await expect(engine.campaigns.schedule(ctx, c.id, { scheduledAt: '2027-04-30T09:00:00Z' })).rejects.toThrow(/already passed/);
+    expect((await engine.campaigns.get(ctx, c.id)).status).toBe('draft');
+    await engine.campaigns.schedule(ctx, c.id, { scheduledAt: '2027-05-03T09:00:00Z' });
+    const back = await engine.campaigns.update(ctx, c.id, { scheduledAt: null });
+    expect(back).toMatchObject({ status: 'draft', scheduledAt: null });
+    h.clock.set('2027-05-04T00:00:00Z');
+    await h.tick();
+    await h.drain();
+    expect(h.provider.outbox).toHaveLength(0);
+  });
+});
