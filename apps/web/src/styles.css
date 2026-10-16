@@ -1,0 +1,130 @@
+@import "tailwindcss";
+
+/* Dark mode follows the .dark class on <html>, set from the theme preference. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+  --canvas: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #f2f3f6;
+  --surface-3: #e9ebf0;
+  --ink: #0f1115;
+  --ink-2: #474b55;
+  --muted: #7b808c;
+  --line: #e3e5ea;
+  --line-strong: #cfd3db;
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-ink: #ffffff;
+  --accent-soft: #eef0ff;
+  --accent-text: #4338ca;
+  --good: #0f7a2e;
+  --good-soft: #e7f6ec;
+  --warn: #8a5a00;
+  --warn-soft: #fff4dc;
+  --bad: #c42b2b;
+  --bad-soft: #fdecec;
+  --focus: #6366f1;
+  /* Chart slots (validated categorical order) and chrome. */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --grid: #e8e9ed;
+  --axis: #c3c6cf;
+  --shadow: 0 1px 2px rgb(15 17 21 / 0.04), 0 4px 16px rgb(15 17 21 / 0.04);
+}
+
+.dark {
+  color-scheme: dark;
+  --canvas: #0c0d10;
+  --surface: #14161b;
+  --surface-2: #1b1e24;
+  --surface-3: #242830;
+  --ink: #eef0f4;
+  --ink-2: #b8bcc6;
+  --muted: #858a96;
+  --line: #262a32;
+  --line-strong: #353a44;
+  --accent: #6d67f0;
+  --accent-hover: #807bf5;
+  --accent-ink: #ffffff;
+  --accent-soft: #1f1d3d;
+  --accent-text: #a5a1ff;
+  --good: #3fcf6b;
+  --good-soft: #10291a;
+  --warn: #f2bd4c;
+  --warn-soft: #2d2412;
+  --bad: #f07070;
+  --bad-soft: #321718;
+  --focus: #8b87ff;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --grid: #23262d;
+  --axis: #3a3f49;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
+}
+
+@theme inline {
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-text: var(--accent-text);
+  --color-good: var(--good);
+  --color-good-soft: var(--good-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --shadow-card: var(--shadow);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
