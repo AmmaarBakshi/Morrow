@@ -16,3 +16,4 @@ export type { PrepareInput, PrepareResult } from './services/delivery';
 export { checkDomainDns } from './services/senders';
 export { MORROW_VERSION } from './services/system';
 export { STARTER_TEMPLATES, STARTER_SNIPPETS, emailLayout } from './services/starter';
+export { seedDemo, type DemoOptions, type DemoResult } from './demo';
