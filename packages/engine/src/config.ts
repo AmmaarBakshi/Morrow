@@ -34,8 +34,15 @@ export interface EngineConfig {
     intervalMs: number;
   };
   sessionTtlDays: number;
+  /**
+   * Allow anyone to create an account and workspace. The very first account
+   * can always be created; afterwards people join by invitation unless this is on.
+   */
+  allowPublicSignup: boolean;
   /** Keep succeeded jobs this long before pruning (frees dedupe keys and space). */
   jobRetentionDays: number;
+  /** Optional AI assistance configured for every workspace (workspaces may override). */
+  ai: { provider: string; model: string | null; apiKey: string } | null;
 }
 
 const DEV_SECRET = 'morrow-development-secret-change-me-0123456789';
@@ -125,7 +132,11 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
       intervalMs: int(env.MORROW_SCHEDULER_INTERVAL_MS, 30_000, 1_000, 3_600_000),
     },
     sessionTtlDays: int(env.MORROW_SESSION_TTL_DAYS, 14, 1, 365),
+    allowPublicSignup: bool(env.MORROW_ALLOW_SIGNUP, environment !== 'production'),
     jobRetentionDays: int(env.MORROW_JOB_RETENTION_DAYS, 30, 1, 3650),
+    ai: env.MORROW_AI_PROVIDER
+      ? { provider: env.MORROW_AI_PROVIDER, model: env.MORROW_AI_MODEL || null, apiKey: env.ANTHROPIC_API_KEY ?? '' }
+      : null,
   };
 }
 
