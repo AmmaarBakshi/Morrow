@@ -1,5 +1,5 @@
 import { MorrowClient } from '@morrow/sdk';
-import { readConfig, type Profile } from './config';
+import { configPath, readConfig, type Profile } from './config';
 import { Output, type Writer } from './output';
 
 export interface GlobalOptions {
@@ -27,20 +27,24 @@ export interface CliContext {
   client(): MorrowClient;
   profileName(): string;
   profile(): Profile | null;
+  /** Where profiles are stored (MORROW_CONFIG or the user config folder). */
+  configFile: string;
   fetch?: typeof fetch;
 }
 
 export function createContext(options: GlobalOptions, deps: { env?: NodeJS.ProcessEnv; writer?: Writer; fetch?: typeof fetch } = {}): CliContext {
   const env = deps.env ?? process.env;
   const output = new Output(Boolean(options.json), deps.writer);
-  const profileName = () => options.profile ?? env.MORROW_PROFILE ?? readConfig().current;
-  const profile = () => readConfig().profiles[profileName()] ?? null;
+  const configFile = configPath(env);
+  const profileName = () => options.profile ?? env.MORROW_PROFILE ?? readConfig(configFile).current;
+  const profile = () => readConfig(configFile).profiles[profileName()] ?? null;
   let client: MorrowClient | null = null;
   return {
     output,
     options,
     env,
     fetch: deps.fetch,
+    configFile,
     profileName,
     profile,
     client() {

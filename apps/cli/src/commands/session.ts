@@ -34,7 +34,7 @@ export const registerSession: Register = (program, run) => {
         }
         const who = await base.configure({ token }).auth.whoami();
         const label = who.user ? `${who.user.name} <${who.user.email}>` : `API key "${who.apiKey?.name}"`;
-        saveProfile(opts.name, { url, token, kind, label, workspaceId: who.workspace.id });
+        saveProfile(opts.name, { url, token, kind, label, workspaceId: who.workspace.id }, ctx.configFile);
         ctx.output.result({ profile: opts.name, url, kind, workspace: who.workspace.name, role: who.role }, () =>
           ctx.output.success(`Signed in to ${pc.bold(who.workspace.name)} as ${label} (${who.role}) — profile "${opts.name}"`),
         );
@@ -50,7 +50,7 @@ export const registerSession: Register = (program, run) => {
         const p = ctx.profile();
         if (!p) throw new CliError(`No profile named "${name}".`);
         if (p.kind === 'session') await ctx.client().auth.logout().catch(() => undefined);
-        removeProfile(name);
+        removeProfile(name, ctx.configFile);
         ctx.output.result({ profile: name, removed: true }, () => ctx.output.success(`Signed out of profile "${name}"`));
       }),
     );
@@ -78,7 +78,7 @@ export const registerSession: Register = (program, run) => {
     .description('list saved server profiles')
     .action(
       run(async (ctx) => {
-        const config = readConfig();
+        const config = readConfig(ctx.configFile);
         const rows = Object.entries(config.profiles).map(([name, p]) => ({ name, current: name === config.current, url: p.url, kind: p.kind, label: p.label ?? '' }));
         ctx.output.result(rows, () =>
           ctx.output.table(
