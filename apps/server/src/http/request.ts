@@ -53,9 +53,9 @@ const UNSAFE = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 export function requireJsonBodies(): MiddlewareHandler<AppEnv> {
   return async (c, next) => {
     if (UNSAFE.has(c.req.method)) {
-      const length = Number(c.req.header('content-length') ?? '0');
-      const hasBody = length > 0 || c.req.header('transfer-encoding') !== undefined;
       const type = (c.req.header('content-type') ?? '').toLowerCase();
+      const length = Number(c.req.header('content-length') ?? '0');
+      const hasBody = Boolean(type) || length > 0 || c.req.header('transfer-encoding') !== undefined;
       const csvUpload = /\/imports\/?$/.test(c.req.path) && (type.startsWith('text/csv') || type.startsWith('text/plain'));
       if (hasBody && !type.startsWith('application/json') && !csvUpload) {
         throw badRequest('Send request bodies as application/json.');
