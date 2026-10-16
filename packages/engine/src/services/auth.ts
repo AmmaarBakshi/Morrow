@@ -5,6 +5,7 @@ import {
   isValidEmail,
   newId,
   normalizeEmail,
+  NotFoundError,
   permissionsFor,
   randomToken,
   UnauthorizedError,
@@ -217,6 +218,17 @@ export class AuthService {
     let del = this.e.db.deleteFrom('sessions').where('user_id', '=', userId);
     if (keepSessionId) del = del.where('id', '!=', keepSessionId);
     await del.execute();
+  }
+
+  /** Operator reset from the CLI (no current password): set a new one and end every session. */
+  async adminResetPassword(emailInput: string, nextPassword: string): Promise<Row<'users'>> {
+    const email = normalizeEmail(emailInput) ?? '';
+    const user = email ? await this.e.db.selectFrom('users').selectAll().where('email', '=', email).executeTakeFirst() : undefined;
+    if (!user) throw new NotFoundError('User', emailInput);
+    validatePassword(nextPassword);
+    await this.e.db.updateTable('users').set({ password_hash: await hashPassword(nextPassword), updated_at: this.e.nowIso() }).where('id', '=', user.id).execute();
+    await this.e.db.deleteFrom('sessions').where('user_id', '=', user.id).execute();
+    return user;
   }
 
   /** Resolve a raw API key to its workspace and role (null when invalid, revoked or expired). */
