@@ -2,19 +2,25 @@ import clsx from 'clsx';
 import { forwardRef, useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react';
 
 const control =
-  'w-full rounded-lg border border-line-strong bg-surface px-3 text-sm text-ink placeholder:text-muted transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:opacity-60';
+  'rounded-lg border border-line-strong bg-surface px-3 text-sm text-ink placeholder:text-muted transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:opacity-60';
+
+/** Default width and height, dropped when the caller sets its own (clsx alone can't override them: CSS order decides). */
+function sized(className: string | undefined, height: string | null, extra: string) {
+  const has = (prefix: string) => new RegExp(`(^|\\s)${prefix}-`).test(className ?? '');
+  return clsx(control, !has('w') && 'w-full', height && !has('h') && height, extra, className);
+}
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input({ className, ...rest }, ref) {
-  return <input ref={ref} className={clsx(control, 'h-9', className)} {...rest} />;
+  return <input ref={ref} className={sized(className, 'h-9', '')} {...rest} />;
 });
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(function Textarea({ className, ...rest }, ref) {
-  return <textarea ref={ref} className={clsx(control, 'py-2 leading-relaxed', className)} {...rest} />;
+  return <textarea ref={ref} className={sized(className, null, 'py-2 leading-relaxed')} {...rest} />;
 });
 
 export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement>>(function Select({ className, children, ...rest }, ref) {
   return (
-    <select ref={ref} className={clsx(control, 'h-9 pr-8', className)} {...rest}>
+    <select ref={ref} className={sized(className, 'h-9', 'pr-8')} {...rest}>
       {children}
     </select>
   );
