@@ -202,7 +202,7 @@ export default function TemplateEditorPage() {
           <Card>
             <CardHeader
               title="Content (HTML)"
-              description="Use {{variable}} or {{variable | fallback}}. Unsafe markup (scripts, event handlers) is removed on save."
+              description={'Use {{first_name}}, or {{first_name | default: "there"}} for a fallback. Unsafe markup (scripts, event handlers) is removed on save.'}
               action={
                 <Select className="w-auto" value={d.missingPolicy} disabled={!editable} onChange={(e) => set({ missingPolicy: e.target.value as 'fallback' | 'skip' })} aria-label="When a variable is missing">
                   <option value="fallback">Missing data: use fallbacks</option>

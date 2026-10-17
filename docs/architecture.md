@@ -34,8 +34,9 @@ packages/
   email/    Provider-independent delivery: EmailProvider interface, error
             classification, fake/dev provider, SMTP, Resend, Postmark,
             webhook signature verification.
-  ai/       Optional AI assistance behind a provider interface (Anthropic,
-            OpenAI-compatible, disabled). Never on the critical path.
+  ai/       Optional AI assistance behind a provider interface (Anthropic
+            today; others plug in through `AiProvider`). Never on the
+            critical path: every feature works with AI disabled.
   engine/   Application services (contacts, segments, templates, automations,
             campaigns, analytics, …), the durable job queue, the worker, the
             scheduler and the automation executor.
@@ -114,7 +115,8 @@ The `jobs` table is the queue. Workers claim batches with a lease
 SQLite writes are serialised so a single conditional update is atomic.
 
 * Retryable failures back off exponentially with jitter up to `max_attempts`,
-  then move to `dead` (the dead-letter state) and raise a notification.
+  then move to `dead` (the dead-letter state). Dead jobs are logged, counted in
+  `/metrics` and listed in Settings → System, where they can be retried.
 * Permanent failures (invalid address, hard bounce, provider rejection) are
   never retried.
 * Expired leases are reclaimed, so killing a worker never loses work.
@@ -147,7 +149,7 @@ Every message has a category:
 | Category        | Consent required                         | Unsubscribe link |
 | --------------- | ---------------------------------------- | ---------------- |
 | `transactional` | none (still blocked by hard suppression) | optional         |
-| `relationship`  | `granted` or `implied`                   | required         |
+| `relationship`  | `granted` or `implied` (also `unknown` if the workspace allows it) | required |
 | `marketing`     | `granted` (or `implied` if the workspace explicitly allows it) | required |
 
 Eligibility is evaluated when a message is created **and again at the final
