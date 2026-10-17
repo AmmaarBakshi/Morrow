@@ -115,8 +115,8 @@ Last full run (2026-10-17):
 | Check | Result |
 | --- | --- |
 | `npm run typecheck` (packages, server, CLI and web) | passed |
-| `npx vitest run` on SQLite | **21 files, 244 tests, all passed** |
-| `npm run test:pg` (PostgreSQL via embedded PGlite) | **not completed in the final run** (the machine ran low on memory and the run was stopped). Earlier runs passed the database, queue and end-to-end birthday suites on PostgreSQL; run the full suite again with `npm run test:pg`. CI runs both databases on every push. |
+| `npx vitest run` on SQLite | **21 files, 245 tests, all passed** |
+| `npm run test:pg` (PostgreSQL via embedded PGlite) | **21 files, 245 tests, all passed.** Each worker holds its own in-memory database, so on a machine with little free memory limit the workers: `npm run test:pg -- --maxWorkers=2`. |
 | Production build | web app (Vite), server and CLI bundles (tsup) built successfully earlier the same day; the built server and CLI were smoke-tested end to end (migrate, demo seed, `doctor`, sign-in and API queries over a real port). |
 | UI check | every main page rendered in headless Chrome in light and dark themes and at phone width with no console errors or failed requests; layout issues found this way were fixed. |
 

@@ -198,16 +198,16 @@ export function StepsEditor({ steps, onChange, disabled, depth = 0 }: { steps: S
       <AddStep onAdd={(t) => insertAt(0, t)} disabled={disabled} />
       {steps.map((s, i) => (
         <div key={s.id} className="flex flex-col">
-          <div className={clsx('rounded-xl border bg-surface shadow-card', open === s.id ? 'border-accent' : 'border-line')}>
+          <div className={clsx('@container rounded-xl border bg-surface shadow-card', open === s.id ? 'border-accent' : 'border-line')}>
             <div className="flex items-center gap-3 px-4 py-3">
               <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent-text">{ICONS[s.type]}</span>
               <button type="button" className="min-w-0 flex-1 text-left" onClick={() => setOpen(open === s.id ? null : s.id)} aria-expanded={open === s.id}>
-                <p className="text-sm font-medium text-ink">{STEP_LABELS[s.type]}</p>
+                <p className="truncate text-sm font-medium text-ink">{STEP_LABELS[s.type]}</p>
                 <p className="truncate text-xs text-muted">{summary(s, names)}</p>
               </button>
-              <span className="hidden font-mono text-[10px] text-muted sm:inline">{s.id}</span>
+              <span className="hidden max-w-28 truncate font-mono text-[10px] text-muted @md:block" title={s.id}>{s.id}</span>
               {!disabled ? (
-                <div className="flex items-center">
+                <div className="flex shrink-0 items-center">
                   <button type="button" className="p-1 text-muted hover:text-ink disabled:opacity-30" disabled={i === 0} onClick={() => move(i, -1)} aria-label="Move up"><ArrowUp className="size-3.5" /></button>
                   <button type="button" className="p-1 text-muted hover:text-ink disabled:opacity-30" disabled={i === steps.length - 1} onClick={() => move(i, 1)} aria-label="Move down"><ArrowDown className="size-3.5" /></button>
                   <button type="button" className="p-1 text-muted hover:text-bad" onClick={() => onChange(steps.filter((_, j) => j !== i))} aria-label="Delete step"><Trash2 className="size-3.5" /></button>
