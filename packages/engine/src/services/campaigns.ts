@@ -732,7 +732,12 @@ export class CampaignsService {
       .leftJoin('messages', 'messages.id', 'campaign_recipients.message_id')
       .where('campaign_recipients.campaign_id', '=', id)
       .where('campaign_recipients.workspace_id', '=', ctx.workspaceId);
-    if (query.status) base = base.where('campaign_recipients.status', '=', query.status);
+    // The recipient row records the dispatch outcome; delivery progress lives on the message.
+    if (query.status === 'skipped') base = base.where('campaign_recipients.status', '=', 'skipped');
+    else if (query.status === 'sent') base = base.where('messages.status', 'in', ['sent', 'delivered', 'complained']);
+    else if (query.status === 'failed') base = base.where('messages.status', 'in', ['bounced', 'failed', 'rejected', 'uncertain']);
+    else if (query.status === 'pending') base = base.where('messages.status', 'in', ['queued', 'pending_approval', 'sending']);
+    else if (query.status) base = base.where((eb) => eb.or([eb('messages.status', '=', query.status!), eb('campaign_recipients.status', '=', query.status!)]));
     const total = Number((await base.select((eb) => eb.fn.countAll<number>().as('n')).executeTakeFirst())?.n ?? 0);
     const rows = await base
       .select([
@@ -754,7 +759,7 @@ export class CampaignsService {
         contactId: r.contact_id,
         name: fullName({ firstName: r.first_name, lastName: r.last_name }) || r.email || 'Unnamed contact',
         email: r.email,
-        status: r.status,
+        status: r.status === 'skipped' || !r.message_status ? r.status : r.message_status,
         skipReason: r.skip_reason,
         messageId: r.message_id,
         messageStatus: (r.message_status as MessageStatus | null) ?? null,

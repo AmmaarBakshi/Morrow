@@ -164,3 +164,19 @@ describe('campaign scheduling safety', () => {
     expect(h.provider.outbox).toHaveLength(0);
   });
 });
+
+describe('campaign recipients', () => {
+  it('reports each recipient’s live delivery status and filters by outcome', async () => {
+    h = await createHarness();
+    const { engine, ctx } = h;
+    const seg = await audience(h);
+    const c = await engine.campaigns.create(ctx, { name: 'Statuses', segmentId: seg.id, templateId: await h.templateId('Newsletter') });
+    await engine.campaigns.launch(ctx, c.id);
+    await h.drain();
+    const all = await engine.campaigns.recipients(ctx, c.id);
+    expect(all.items.map((r) => r.status).sort()).toEqual(['bounced', 'delivered', 'delivered', 'delivered', 'skipped', 'skipped', 'skipped']);
+    expect((await engine.campaigns.recipients(ctx, c.id, { status: 'sent' })).total).toBe(3);
+    expect((await engine.campaigns.recipients(ctx, c.id, { status: 'failed' })).items.map((r) => r.email)).toEqual(['dan+bounce@example.com']);
+    expect((await engine.campaigns.recipients(ctx, c.id, { status: 'skipped' })).total).toBe(3);
+  });
+});
