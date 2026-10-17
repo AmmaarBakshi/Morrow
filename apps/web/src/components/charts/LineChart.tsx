@@ -24,7 +24,7 @@ const M = { top: 12, right: 64, bottom: 28, left: 40 };
 
 function useWidth<T extends HTMLElement>(): [React.RefObject<T | null>, number] {
   const ref = useRef<T>(null);
-  const [w, setW] = useState(640);
+  const [w, setW] = useState(320);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -128,7 +128,7 @@ export function LineChart({ data, series, height = 240, title, dim }: LineChartP
           </table>
         </div>
       ) : (
-        <div ref={wrapRef} className="relative">
+        <div ref={wrapRef} className="relative w-full min-w-0">
           <svg width={width} height={height} role="img" aria-label={title} tabIndex={0} onKeyDown={onKey} onBlur={() => setHover(null)} className="block overflow-visible focus-visible:outline-offset-4">
             <g transform={`translate(${M.left},${M.top})`}>
               {ticks.map((t) => (

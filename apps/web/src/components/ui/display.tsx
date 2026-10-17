@@ -5,7 +5,7 @@ import { errorMessage } from '../../lib/api';
 import { humanize } from '../../lib/format';
 
 export function Card({ children, className, padded = true }: { children: ReactNode; className?: string; padded?: boolean }) {
-  return <section className={clsx('rounded-xl border border-line bg-surface shadow-card', padded && 'p-5', className)}>{children}</section>;
+  return <section className={clsx('min-w-0 rounded-xl border border-line bg-surface shadow-card', padded && 'p-5', className)}>{children}</section>;
 }
 
 export function CardHeader({ title, description, action }: { title: ReactNode; description?: ReactNode; action?: ReactNode }) {
@@ -124,7 +124,7 @@ export function Stat({ label, value, sub, icon }: { label: string; value: ReactN
 
 export function Tabs<T extends string>({ value, onChange, items }: { value: T; onChange(v: NoInfer<T>): void; items: Array<{ value: NoInfer<T>; label: ReactNode; count?: number }> }) {
   return (
-    <div role="tablist" className="flex gap-1 overflow-x-auto border-b border-line">
+    <div role="tablist" className="flex gap-1 overflow-x-auto overflow-y-hidden border-b border-line">
       {items.map((it) => (
         <button
           key={it.value}

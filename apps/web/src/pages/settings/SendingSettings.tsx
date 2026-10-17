@@ -83,10 +83,12 @@ function ProviderCard() {
           </div>
         ) : null}
         {d.capabilities ? (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="mr-1 text-xs text-muted">Provider reports:</span>
             {Object.entries(d.capabilities).map(([k, v]) => <Badge key={k} tone={v ? 'good' : 'neutral'}>{v ? '✓' : '—'} {humanize(k.replace(/([A-Z])/g, '_$1').toLowerCase())}</Badge>)}
           </div>
         ) : null}
+        {d.capabilities ? <p className="-mt-2 text-xs text-muted">Morrow adds its own open and click tracking when enabled in Settings → Workspace, whatever the provider supports.</p> : null}
         {d.lastTestedAt ? <p className="text-xs text-muted">Last tested {formatRelative(d.lastTestedAt)}: {d.lastTestResult}</p> : null}
         {editable ? (
           <div className="flex flex-wrap justify-end gap-2 border-t border-line pt-4">

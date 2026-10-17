@@ -2,19 +2,22 @@ import clsx from 'clsx';
 import { forwardRef, useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react';
 
 const control =
-  'w-full rounded-lg border border-line-strong bg-surface px-3 text-sm text-ink placeholder:text-muted transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:opacity-60';
+  'rounded-lg border border-line-strong bg-surface px-3 text-sm text-ink placeholder:text-muted transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:opacity-60';
+
+/** Full width unless the caller sets a width (Tailwind cannot resolve w-full vs w-auto by class order). */
+const width = (className?: string) => (/(^|\s)(w-|min-w-0|flex-1|size-)/.test(className ?? '') ? '' : 'w-full');
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input({ className, ...rest }, ref) {
-  return <input ref={ref} className={clsx(control, 'h-9', className)} {...rest} />;
+  return <input ref={ref} className={clsx(control, width(className), 'h-9', className)} {...rest} />;
 });
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(function Textarea({ className, ...rest }, ref) {
-  return <textarea ref={ref} className={clsx(control, 'py-2 leading-relaxed', className)} {...rest} />;
+  return <textarea ref={ref} className={clsx(control, width(className), 'py-2 leading-relaxed', className)} {...rest} />;
 });
 
 export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement>>(function Select({ className, children, ...rest }, ref) {
   return (
-    <select ref={ref} className={clsx(control, 'h-9 pr-8', className)} {...rest}>
+    <select ref={ref} className={clsx(control, width(className), 'h-9 pr-8', className)} {...rest}>
       {children}
     </select>
   );
