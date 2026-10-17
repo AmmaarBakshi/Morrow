@@ -68,6 +68,7 @@ MORROW_SECRET_KEY="$(openssl rand -base64 32)" docker compose up -d --build
 | [HTTP API](docs/api.md) | Authentication, conventions, errors and every endpoint |
 | [CLI](docs/cli.md) | Operating an installation and working with a workspace from the terminal |
 | [Architecture](docs/architecture.md) | Packages, data model, queue, scheduler and the decisions behind them |
+| [Implementation report](docs/implementation-report.md) | What is built, test results and known limitations |
 
 ## Using Morrow from another product
 
